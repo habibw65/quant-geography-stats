@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Statistics - Quantitative Research Methods</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #06b6d4;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-bg-light: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+        }
+        
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 16px;
+        }
+        
+        /* Header & Navigation */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 12px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        
+        .header-left h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-left p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav a {
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+        }
+        
+        .nav a:hover {
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        
+        .nav a.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Main Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        
+        /* Left Column */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+        
+        /* Input Section */
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        input[type="number"] {
+            flex: 1;
+            background: var(--card-bg-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--card-bg-light);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .btn-danger {
+            background: rgba(244, 63, 94, 0.2);
+            color: var(--accent);
+        }
+        
+        .btn-danger:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-outlier {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .btn-outlier:hover {
+            background: var(--warning);
+            color: var(--bg);
+        }
+        
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+        
+        .sample-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .outlier-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            gap: 8px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg-light);
+            border-radius: 10px;
+            padding: 12px;
+            position: relative;
+            border-left: 3px solid;
+        }
+        
+        .stat-card.mean { border-left-color: var(--primary); }
+        .stat-card.median { border-left-color: var(--secondary); }
+        .stat-card.mode { border-left-color: var(--accent); }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        
+        .stat-card.mean .stat-value { color: var(--primary); }
+        .stat-card.median .stat-value { color: var(--secondary); }
+        .stat-card.mode .stat-value { color: var(--accent); }
+        
+        .stat-formula {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-family: monospace;
+        }
+        
+        /* Data List */
+        .data-section {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+        
+        .data-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .data-tag {
+            background: var(--card-bg-light);
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border);
+        }
+        
+        .data-tag .remove {
+            cursor: pointer;
+            color: var(--accent);
+            font-weight: bold;
+            opacity: 0.7;
+        }
+        
+        .data-tag .remove:hover {
+            opacity: 1;
+        }
+        
+        .empty-state {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 30px 10px;
+        }
+        
+        .count-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        
+        /* Center & Right Columns */
+        .center-col, .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+        
+        .chart-wrapper {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+        
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 8px 6px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .comparison-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+        }
+        
+        .sample-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .sample-value.mean { color: var(--primary); }
+        .sample-value.median { color: var(--secondary); }
+        .sample-value.mode { color: var(--accent); }
+        
+        /* Outlier Effect Section */
+        .outlier-demo {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(244, 63, 94, 0.1) 100%);
+            border: 1px solid var(--warning);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        
+        .outlier-demo h4 {
+            color: var(--warning);
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .outlier-buttons-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .outlier-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .outlier-stat {
+            background: var(--card-bg);
+            padding: 8px 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .outlier-stat .label {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        
+        .outlier-stat .value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .outlier-stat .value.impact-high { color: var(--accent); }
+        .outlier-stat .value.impact-low { color: var(--success); }
+        
+        .change-indicator {
+            font-size: 0.7rem;
+            margin-top: 2px;
+        }
+        
+        .change-up { color: var(--accent); }
+        .change-down { color: var(--success); }
+        .change-none { color: var(--text-muted); }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 8px;
+            font-size: 0.75rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+        }
+        
+        .legend-line {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        .legend-line.mean { 
+            background: var(--primary); 
+            border: 1px dashed var(--primary);
+            height: 0;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .legend-dot.mean { background: var(--primary); }
+        .legend-dot.median { background: var(--secondary); }
+        
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .info-card {
+            background: var(--card-bg-light);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid;
+        }
+        
+        .info-card.mean { border-left-color: var(--primary); }
+        .info-card.median { border-left-color: var(--secondary); }
+        .info-card.mode { border-left-color: var(--accent); }
+        
+        .info-card h4 {
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+        }
+        
+        .info-card.mean h4 { color: var(--primary); }
+        .info-card.median h4 { color: var(--secondary); }
+        .info-card.mode h4 { color: var(--accent); }
+        
+        .info-card p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        
+        .formula {
+            background: var(--bg);
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            margin-top: 6px;
+            color: var(--text);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--card-bg);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>📊 Interactive Statistics Dashboard</h1>
+                <p>Quantitative Research Methods in Geography | Central Tendency & Outliers</p>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="active">Central Tendency</a>
+                <a href="dispersion.html">Dispersion</a>
+                <a href="distribution.html">Distribution</a>
+                <a href="sampling.html">Sampling</a>
+                <a href="correlation.html">Correlation</a>
+            </nav>
+        </header>
+        
+        <div class="dashboard">
+            <!-- Left Column: Data Input & Stats -->
+            <div class="left-col">
+                <!-- Data Input -->
+                <div class="card" style="flex-shrink: 0;">
+                    <div class="card-title">🎯 Data Input</div>
+                    <div class="input-group">
+                        <input type="number" id="heightInput" placeholder="Height (cm)" min="50" max="300" step="0.1">
+                        <button class="btn btn-primary" onclick="addDataPoint()">Add</button>
+                    </div>
+                    <div class="sample-buttons">
+                        <button class="btn btn-secondary btn-small" onclick="addRandomSample(5)">+5 🎲</button>
+                        <button class="btn btn-secondary btn-small" onclick="addRandomSample(10)">+10 🎲</button>
+                        <button class="btn btn-secondary btn-small" onclick="addRandomSample(15)">+15 🎲</button>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="clearAllData()" style="width: 100%;">Clear All Data</button>
+                </div>
+                
+                <!-- Live Statistics -->
+                <div class="card" style="flex-shrink: 0;">
+                    <div class="card-title">📈 Current Statistics</div>
+                    <div class="stats-grid">
+                        <div class="stat-card mean">
+                            <div class="stat-label">Mean (Average)</div>
+                            <div class="stat-value" id="meanValue">-</div>
+                            <div class="stat-formula">x̄ = Σx/n</div>
+                        </div>
+                        <div class="stat-card median">
+                            <div class="stat-label">Median (Middle)</div>
+                            <div class="stat-value" id="medianValue">-</div>
+                            <div class="stat-formula">Middle value</div>
+                        </div>
+                        <div class="stat-card mode">
+                            <div class="stat-label">Mode (Most Frequent)</div>
+                            <div class="stat-value" id="modeValue">-</div>
+                            <div class="stat-formula">max frequency</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Points -->
+                <div class="card" style="flex: 1; min-height: 0;">
+                    <div class="card-title">
+                        📋 Data Points
+                        <span class="count-badge" id="countValue">0</span>
+                    </div>
+                    <div class="data-section" id="dataList">
+                        <div class="empty-state">
+                            <div style="font-size: 2rem; opacity: 0.5; margin-bottom: 8px;">📭</div>
+                            <p style="font-size: 0.85rem;">No data yet. Add heights to get started!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center Column: Visualizations -->
+            <div class="center-col">
+                <!-- Histogram -->
+                <div class="card" style="flex: 1.2;">
+                    <div class="card-title">📊 Distribution Histogram</div>
+                    <div class="chart-wrapper">
+                        <div class="chart-container">
+                            <canvas id="histogramChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-dot mean"></div>
+                            <span>Mean</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot median"></div>
+                            <span>Median</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sample Comparison -->
+                <div class="card" style="flex: 0.8;">
+                    <div class="card-title">📏 Sample Size Comparison (Law of Large Numbers)</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 100%;">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>n</th>
+                                    <th>Mean</th>
+                                    <th>Median</th>
+                                    <th>Mode</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>5</strong></td>
+                                    <td class="sample-value mean" id="sample5-mean">-</td>
+                                    <td class="sample-value median" id="sample5-median">-</td>
+                                    <td class="sample-value mode" id="sample5-mode">-</td>
+                                    <td><button class="btn btn-secondary btn-small" onclick="generateComparisonSample(5)">🎲</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>10</strong></td>
+                                    <td class="sample-value mean" id="sample10-mean">-</td>
+                                    <td class="sample-value median" id="sample10-median">-</td>
+                                    <td class="sample-value mode" id="sample10-mode">-</td>
+                                    <td><button class="btn btn-secondary btn-small" onclick="generateComparisonSample(10)">🎲</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>15</strong></td>
+                                    <td class="sample-value mean" id="sample15-mean">-</td>
+                                    <td class="sample-value median" id="sample15-median">-</td>
+                                    <td class="sample-value mode" id="sample15-mode">-</td>
+                                    <td><button class="btn btn-secondary btn-small" onclick="generateComparisonSample(15)">🎲</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="chart-wrapper">
+                            <div class="chart-container">
+                                <canvas id="comparisonChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Theory Cards -->
+                <div class="card" style="flex-shrink: 0;">
+                    <div class="card-title">📚 Central Tendency Formulas</div>
+                    <div class="info-grid">
+                        <div class="info-card mean">
+                            <h4>🔵 Mean</h4>
+                            <p>Sum divided by count. Sensitive to outliers.</p>
+                            <div class="formula">x̄ = (Σxᵢ) / n</div>
+                        </div>
+                        <div class="info-card median">
+                            <h4>🟢 Median</h4>
+                            <p>Middle value. Robust to outliers.</p>
+                            <div class="formula">Position: (n+1)/2</div>
+                        </div>
+                        <div class="info-card mode">
+                            <h4>🟠 Mode</h4>
+                            <p>Most frequent value. For categorical data.</p>
+                            <div class="formula">max(freq(x))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Outlier Demo & Comparison -->
+            <div class="right-col">
+                <!-- Outlier Effect Demonstration -->
+                <div class="card outlier-demo" style="flex-shrink: 0;">
+                    <h4>⚠️ Effect of Extreme Values (Outliers)</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">
+                        Add an extreme value to see how Mean changes dramatically while Median stays stable.
+                    </p>
+                    <div class="outlier-buttons-row">
+                        <button class="btn btn-outlier btn-small" onclick="addOutlier('high')">+ Outlier (High ↗️)</button>
+                        <button class="btn btn-outlier btn-small" onclick="addOutlier('low')">+ Outlier (Low ↘️)</button>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; text-align: center;">
+                        <strong>Before → After</strong> (Impact on statistics)
+                    </div>
+                    <div class="outlier-stats">
+                        <div class="outlier-stat">
+                            <div class="label">Mean Change</div>
+                            <div class="value" id="meanChange">-</div>
+                            <div class="change-indicator" id="meanChangeIndicator">Add data first</div>
+                        </div>
+                        <div class="outlier-stat">
+                            <div class="label">Median Change</div>
+                            <div class="value" id="medianChange">-</div>
+                            <div class="change-indicator" id="medianChangeIndicator">Add data first</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 8px; background: var(--card-bg); border-radius: 6px; font-size: 0.75rem;">
+                        <strong style="color: var(--warning);">💡 Key Insight:</strong>
+                        <span style="color: var(--text-muted);">Mean is pulled toward outliers. Median resists extreme values, making it better for skewed data like income.</span>
+                    </div>
+                </div>
+                
+                <!-- Current Data Summary -->
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📊 Data Summary</div>
+                    <div id="dataSummary" style="font-size: 0.85rem; color: var(--text-muted);">
+                        <p>Add data to see summary statistics...</p>
+                    </div>
+                    <div class="chart-wrapper" style="margin-top: 10px; flex: 1;">
+                        <div class="chart-container">
+                            <canvas id="boxplotChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dataPoints = [];
+        let histogramChart = null;
+        let comparisonChart = null;
+        let boxplotChart = null;
+        let statsBeforeOutlier = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('heightInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addDataPoint();
+            });
+            updateDisplay();
+        });
+        
+        function addDataPoint() {
+            const input = document.getElementById('heightInput');
+            const value = parseFloat(input.value);
+            
+            if (isNaN(value) || value < 50 || value > 300) {
+                alert('Please enter a valid height between 50 and 300 cm');
+                return;
+            }
+            
+            // Save stats before adding if we have data (for outlier comparison)
+            if (dataPoints.length > 0) {
+                statsBeforeOutlier = {
+                    mean: calculateMean(dataPoints),
+                    median: calculateMedian(dataPoints)
+                };
+            }
+            
+            dataPoints.push(value);
+            input.value = '';
+            input.focus();
+            updateDisplay();
+            
+            // Update outlier effect display
+            if (statsBeforeOutlier) {
+                updateOutlierEffect();
+            }
+        }
+        
+        function addOutlier(type) {
+            if (dataPoints.length === 0) {
+                // Add some normal data first
+                addRandomSample(8);
+            }
+            
+            // Save current stats
+            statsBeforeOutlier = {
+                mean: calculateMean(dataPoints),
+                median: calculateMedian(dataPoints)
+            };
+            
+            // Add outlier
+            const currentMean = calculateMean(dataPoints);
+            let outlierValue;
+            if (type === 'high') {
+                outlierValue = currentMean + 40 + Math.random() * 20; // Much higher
+            } else {
+                outlierValue = Math.max(50, currentMean - 40 - Math.random() * 20); // Much lower
+            }
+            outlierValue = Math.round(outlierValue * 10) / 10;
+            
+            dataPoints.push(outlierValue);
+            updateDisplay();
+            updateOutlierEffect();
+            
+            // Flash the outlier value
+            const outlierStat = document.querySelector('.outlier-demo');
+            outlierStat.style.borderColor = 'var(--accent)';
+            setTimeout(() => {
+                outlierStat.style.borderColor = 'var(--warning)';
+            }, 500);
+        }
+        
+        function updateOutlierEffect() {
+            if (!statsBeforeOutlier) return;
+            
+            const currentMean = calculateMean(dataPoints);
+            const currentMedian = calculateMedian(dataPoints);
+            
+            const meanDiff = currentMean - statsBeforeOutlier.mean;
+            const medianDiff = currentMedian - statsBeforeOutlier.median;
+            
+            // Update Mean Change
+            const meanChangeEl = document.getElementById('meanChange');
+            const meanIndicatorEl = document.getElementById('meanChangeIndicator');
+            
+            if (Math.abs(meanDiff) < 0.1) {
+                meanChangeEl.textContent = '0.0';
+                meanChangeEl.className = 'value';
+                meanIndicatorEl.textContent = 'No change';
+                meanIndicatorEl.className = 'change-indicator change-none';
+            } else {
+                meanChangeEl.textContent = (meanDiff > 0 ? '+' : '') + meanDiff.toFixed(1);
+                meanChangeEl.className = 'value impact-high';
+                meanIndicatorEl.textContent = Math.abs(meanDiff) > 5 ? '🔴 Large impact!' : '🟡 Moderate';
+                meanIndicatorEl.className = 'change-indicator ' + (meanDiff > 0 ? 'change-up' : 'change-down');
+            }
+            
+            // Update Median Change
+            const medianChangeEl = document.getElementById('medianChange');
+            const medianIndicatorEl = document.getElementById('medianChangeIndicator');
+            
+            if (Math.abs(medianDiff) < 0.1) {
+                medianChangeEl.textContent = '0.0';
+                medianChangeEl.className = 'value impact-low';
+                medianIndicatorEl.textContent = '✅ Stable';
+                medianIndicatorEl.className = 'change-indicator change-none';
+            } else {
+                medianChangeEl.textContent = (medianDiff > 0 ? '+' : '') + medianDiff.toFixed(1);
+                medianChangeEl.className = 'value impact-low';
+                medianIndicatorEl.textContent = 'Small change';
+                medianIndicatorEl.className = 'change-indicator change-none';
+            }
+        }
+        
+        function addRandomSample(n) {
+            for (let i = 0; i < n; i++) {
+                const height = Math.round((randomNormal(170, 10) + Number.EPSILON) * 10) / 10;
+                dataPoints.push(height);
+            }
+            statsBeforeOutlier = null; // Reset outlier comparison
+            updateDisplay();
+            resetOutlierDisplay();
+        }
+        
+        function resetOutlierDisplay() {
+            document.getElementById('meanChange').textContent = '-';
+            document.getElementById('meanChange').className = 'value';
+            document.getElementById('meanChangeIndicator').textContent = 'Add outlier to see';
+            document.getElementById('meanChangeIndicator').className = 'change-indicator change-none';
+            document.getElementById('medianChange').textContent = '-';
+            document.getElementById('medianChange').className = 'value';
+            document.getElementById('medianChangeIndicator').textContent = 'Add outlier to see';
+            document.getElementById('medianChangeIndicator').className = 'change-indicator change-none';
+        }
+        
+        function randomNormal(mean, std) {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            return mean + std * z;
+        }
+        
+        function removeDataPoint(index) {
+            dataPoints.splice(index, 1);
+            updateDisplay();
+            if (dataPoints.length === 0) {
+                resetOutlierDisplay();
+            }
+        }
+        
+        function clearAllData() {
+            if (dataPoints.length === 0) return;
+            if (confirm('Clear all data?')) {
+                dataPoints = [];
+                statsBeforeOutlier = null;
+                updateDisplay();
+                resetOutlierDisplay();
+            }
+        }
+        
+        function calculateMean(data) {
+            if (data.length === 0) return null;
+            return data.reduce((a, b) => a + b, 0) / data.length;
+        }
+        
+        function calculateMedian(data) {
+            if (data.length === 0) return null;
+            const sorted = [...data].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            if (sorted.length % 2 === 0) {
+                return (sorted[mid - 1] + sorted[mid]) / 2;
+            }
+            return sorted[mid];
+        }
+        
+        function calculateMode(data) {
+            if (data.length === 0) return null;
+            const frequency = {};
+            let maxFreq = 0;
+            let mode = [];
+            
+            data.forEach(val => {
+                const rounded = Math.round(val);
+                frequency[rounded] = (frequency[rounded] || 0) + 1;
+                if (frequency[rounded] > maxFreq) {
+                    maxFreq = frequency[rounded];
+                }
+            });
+            
+            for (const [val, freq] of Object.entries(frequency)) {
+                if (freq === maxFreq && freq > 1) {
+                    mode.push(parseInt(val));
+                }
+            }
+            
+            if (mode.length === 0 || mode.length > 3) return 'None';
+            if (mode.length === data.length) return 'None';
+            return mode.join(', ');
+        }
+        
+        function updateDisplay() {
+            updateStats();
+            updateDataList();
+            updateHistogram();
+            updateDataSummary();
+        }
+        
+        function updateStats() {
+            const mean = calculateMean(dataPoints);
+            const median = calculateMedian(dataPoints);
+            const mode = calculateMode(dataPoints);
+            
+            document.getElementById('meanValue').textContent = mean !== null ? mean.toFixed(1) : '-';
+            document.getElementById('medianValue').textContent = median !== null ? median.toFixed(1) : '-';
+            document.getElementById('modeValue').textContent = mode !== null ? mode : '-';
+            document.getElementById('countValue').textContent = dataPoints.length;
+        }
+        
+        function updateDataList() {
+            const list = document.getElementById('dataList');
+            
+            if (dataPoints.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 2rem; opacity: 0.5; margin-bottom: 8px;">📭</div>
+                        <p style="font-size: 0.85rem;">No data yet. Add heights to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = '<div class="data-tags">' + 
+                dataPoints.map((val, idx) => `
+                    <span class="data-tag" style="${isOutlier(val) ? 'border-color: var(--accent); background: rgba(244,63,94,0.1);' : ''}">
+                        ${val.toFixed(1)}
+                        <span class="remove" onclick="removeDataPoint(${idx})">×</span>
+                    </span>
+                `).join('') + 
+                '</div>';
+        }
+        
+        function isOutlier(value) {
+            if (dataPoints.length < 5) return false;
+            const mean = calculateMean(dataPoints);
+            const std = Math.sqrt(dataPoints.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / dataPoints.length);
+            return Math.abs(value - mean) > 2 * std;
+        }
+        
+        function updateDataSummary() {
+            const summary = document.getElementById('dataSummary');
+            if (dataPoints.length === 0) {
+                summary.innerHTML = '<p>Add data to see summary statistics...</p>';
+                return;
+            }
+            
+            const sorted = [...dataPoints].sort((a, b) => a - b);
+            const min = sorted[0];
+            const max = sorted[sorted.length - 1];
+            const range = max - min;
+            const mean = calculateMean(dataPoints);
+            
+            summary.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>Min: <strong>${min.toFixed(1)}</strong></div>
+                    <div>Max: <strong>${max.toFixed(1)}</strong></div>
+                    <div>Range: <strong>${range.toFixed(1)}</strong></div>
+                    <div>Std Dev: <strong>${calculateStdDev().toFixed(1)}</strong></div>
+                </div>
+            `;
+            
+            updateBoxplotChart();
+        }
+        
+        function calculateStdDev() {
+            if (dataPoints.length < 2) return 0;
+            const mean = calculateMean(dataPoints);
+            const variance = dataPoints.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / dataPoints.length;
+            return Math.sqrt(variance);
+        }
+        
+        function updateHistogram() {
+            const ctx = document.getElementById('histogramChart').getContext('2d');
+            
+            if (histogramChart) histogramChart.destroy();
+            
+            if (dataPoints.length === 0) {
+                histogramChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['No Data'],
+                        datasets: [{
+                            data: [0],
+                            backgroundColor: 'rgba(148, 163, 184, 0.2)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                                ticks: { color: '#94a3b8', font: { size: 10 } }
+                            },
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { size: 10 } }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // Create bins
+            const min = Math.min(...dataPoints);
+            const max = Math.max(...dataPoints);
+            const binWidth = Math.max(5, (max - min) / 8);
+            const bins = {};
+            const labels = [];
+            
+            for (let i = Math.floor(min / binWidth) * binWidth; i <= max + binWidth; i += binWidth) {
+                const binStart = Math.round(i);
+                const binEnd = Math.round(i + binWidth);
+                bins[`${binStart}-${binEnd}`] = 0;
+                labels.push(`${binStart}-${binEnd}`);
+            }
+            
+            dataPoints.forEach(val => {
+                const binStart = Math.floor(val / binWidth) * binWidth;
+                const binKey = `${Math.round(binStart)}-${Math.round(binStart + binWidth)}`;
+                if (bins[binKey] !== undefined) bins[binKey]++;
+            });
+            
+            const mean = calculateMean(dataPoints);
+            const median = calculateMedian(dataPoints);
+            
+            histogramChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Frequency',
+                        data: Object.values(bins),
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45 }
+                        }
+                    }
+                },
+                plugins: [{
+                    afterDraw: function(chart) {
+                        if (dataPoints.length === 0) return;
+                        
+                        const ctx = chart.ctx;
+                        const xAxis = chart.scales.x;
+                        const chartArea = chart.chartArea;
+                        
+                        const getBinIndex = (value) => {
+                            for (let i = 0; i < labels.length; i++) {
+                                const [start, end] = labels[i].split('-').map(Number);
+                                if (value >= start && value < end) return i;
+                            }
+                            return 0;
+                        };
+                        
+                        const meanIdx = getBinIndex(mean);
+                        const medianIdx = getBinIndex(median);
+                        const meanX = xAxis.getPixelForValue(meanIdx);
+                        const medianX = xAxis.getPixelForValue(medianIdx);
+                        
+                        // Draw mean line
+                        if (meanX) {
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.moveTo(meanX, chartArea.top);
+                            ctx.lineTo(meanX, chartArea.bottom);
+                            ctx.strokeStyle = '#6366f1';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([5, 5]);
+                            ctx.stroke();
+                            ctx.fillStyle = '#6366f1';
+                            ctx.font = 'bold 11px Inter';
+                            ctx.fillText(`Mean: ${mean.toFixed(1)}`, meanX - 30, chartArea.top + 12);
+                            ctx.restore();
+                        }
+                        
+                        // Draw median line
+                        if (medianX) {
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.moveTo(medianX, chartArea.top);
+                            ctx.lineTo(medianX, chartArea.bottom);
+                            ctx.strokeStyle = '#06b6d4';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([10, 5]);
+                            ctx.stroke();
+                            ctx.fillStyle = '#06b6d4';
+                            ctx.font = 'bold 11px Inter';
+                            ctx.fillText(`Median: ${median.toFixed(1)}`, medianX - 35, chartArea.top + 26);
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
+        }
+        
+        function generateComparisonSample(n) {
+            const sample = [];
+            for (let i = 0; i < n; i++) {
+                sample.push(Math.round((randomNormal(170, 10) + Number.EPSILON) * 10) / 10);
+            }
+            
+            const mean = calculateMean(sample);
+            const median = calculateMedian(sample);
+            const mode = calculateMode(sample);
+            
+            document.getElementById(`sample${n}-mean`).textContent = mean ? mean.toFixed(1) : '-';
+            document.getElementById(`sample${n}-median`).textContent = median ? median.toFixed(1) : '-';
+            document.getElementById(`sample${n}-mode`).textContent = mode !== 'None' ? mode : '-';
+            
+            updateComparisonChart();
+        }
+        
+        function updateComparisonChart() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            if (comparisonChart) comparisonChart.destroy();
+            
+            const sample5Mean = parseFloat(document.getElementById('sample5-mean').textContent);
+            const sample5Median = parseFloat(document.getElementById('sample5-median').textContent);
+            const sample10Mean = parseFloat(document.getElementById('sample10-mean').textContent);
+            const sample10Median = parseFloat(document.getElementById('sample10-median').textContent);
+            const sample15Mean = parseFloat(document.getElementById('sample15-mean').textContent);
+            const sample15Median = parseFloat(document.getElementById('sample15-median').textContent);
+            
+            const hasData = !isNaN(sample5Mean) || !isNaN(sample10Mean) || !isNaN(sample15Mean);
+            
+            if (!hasData) {
+                comparisonChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: ['Generate'], datasets: [] },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                return;
+            }
+            
+            comparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['n=5', 'n=10', 'n=15'],
+                    datasets: [
+                        {
+                            label: 'Mean',
+                            data: [
+                                isNaN(sample5Mean) ? 0 : sample5Mean,
+                                isNaN(sample10Mean) ? 0 : sample10Mean,
+                                isNaN(sample15Mean) ? 0 : sample15Mean
+                            ],
+                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                            borderColor: '#6366f1',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Median',
+                            data: [
+                                isNaN(sample5Median) ? 0 : sample5Median,
+                                isNaN(sample10Median) ? 0 : sample10Median,
+                                isNaN(sample15Median) ? 0 : sample15Median
+                            ],
+                            backgroundColor: 'rgba(6, 182, 212, 0.8)',
+                            borderColor: '#06b6d4',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 150,
+                            max: 190,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { size: 9 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateBoxplotChart() {
+            const ctx = document.getElementById('boxplotChart').getContext('2d');
+            
+            if (boxplotChart) boxplotChart.destroy();
+            
+            if (dataPoints.length < 2) {
+                boxplotChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: [], datasets: [] },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                return;
+            }
+            
+            const sorted = [...dataPoints].sort((a, b) => a - b);
+            const min = sorted[0];
+            const max = sorted[sorted.length - 1];
+            const mean = calculateMean(dataPoints);
+            
+            // Simple dot plot showing data distribution
+            const ranges = {};
+            for (let i = Math.floor(min / 5) * 5; i <= Math.ceil(max / 5) * 5; i += 5) {
+                ranges[`${i}-${i+5}`] = 0;
+            }
+            
+            dataPoints.forEach(val => {
+                const rangeStart = Math.floor(val / 5) * 5;
+                const key = `${rangeStart}-${rangeStart+5}`;
+                if (ranges[key] !== undefined) ranges[key]++;
+            });
+            
+            boxplotChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ranges),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(ranges),
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Data Distribution',
+                            color: '#94a3b8',
+                            font: { size: 11 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { size: 9 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 8 }, maxRotation: 45 }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
