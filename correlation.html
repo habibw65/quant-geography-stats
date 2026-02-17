@@ -89,6 +89,137 @@
             border-color: var(--teal);
         }
         
+        /* Info Panel */
+        .info-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+        
+        .info-btn:hover {
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        
+        .info-panel {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100vh;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .info-panel.open {
+            right: 0;
+        }
+        
+        .info-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .info-panel-header h2 {
+            font-size: 1.2rem;
+            color: var(--teal);
+        }
+        
+        .close-panel {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .close-panel:hover {
+            color: var(--text);
+        }
+        
+        .info-section {
+            margin-bottom: 25px;
+        }
+        
+        .info-section h3 {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-section p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-section li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .info-section li::before {
+            content: "•";
+            color: var(--teal);
+            position: absolute;
+            left: 5px;
+        }
+        
+        .formula-box {
+            background: var(--bg);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--text);
+            margin: 10px 0;
+            border-left: 3px solid var(--teal);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
         .dashboard {
             display: grid;
             grid-template-columns: 280px 1fr 300px;
@@ -409,6 +540,7 @@
                 <a href="distribution.html">Distribution</a>
                 <a href="sampling.html">Sampling</a>
                 <a href="correlation.html" class="active">Correlation</a>
+                <button class="info-btn" onclick="toggleInfoPanel()">ℹ️ Learn More</button>
             </nav>
         </header>
         
@@ -852,6 +984,102 @@
                 }
             });
         }
+        
+        // Info Panel Toggle
+        function toggleInfoPanel() {
+            const panel = document.getElementById('infoPanel');
+            const overlay = document.getElementById('overlay');
+            panel.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+        
+        // Close panel when clicking overlay
+        document.getElementById('overlay').addEventListener('click', toggleInfoPanel);
     </script>
+    
+    <!-- Info Panel Overlay -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Info Panel -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-panel-header">
+            <h2>📚 Understanding Correlation & Regression</h2>
+            <button class="close-panel" onclick="toggleInfoPanel()">&times;</button>
+        </div>
+        
+        <div class="info-section">
+            <h3>🔗 What is Correlation?</h3>
+            <p><strong>Correlation</strong> measures the strength and direction of a linear relationship between two variables.</p>
+            <div class="formula-box">Pearson's r ranges from -1 to +1</div>
+            <p><strong>Interpretation:</strong></p>
+            <ul>
+                <li>+1: Perfect positive (as X increases, Y increases)</li>
+                <li>0: No linear relationship</li>
+                <li>-1: Perfect negative (as X increases, Y decreases)</li>
+            </ul>
+        </div>
+        
+        <div class="info-section">
+            <h3>📊 R-Squared (R²)</h3>
+            <p><strong>R²</strong> (coefficient of determination) tells you the proportion of variance in Y that's explained by X.</p>
+            <div class="formula-box">R² = r² (correlation squared)</div>
+            <p><strong>Example:</strong> If r = 0.8, then R² = 0.64. This means 64% of Y's variation is explained by X. The remaining 36% is due to other factors.</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>📐 Regression Equation</h3>
+            <p>The regression line predicts Y based on X:</p>
+            <div class="formula-box">Y = bX + a</div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>b (slope):</strong> Change in Y for each 1-unit change in X</li>
+                <li><strong>a (intercept):</strong> Value of Y when X = 0 (often not meaningful)</li>
+            </ul>
+        </div>
+        
+        <div class="info-section">
+            <h3>🎯 Residual Analysis</h3>
+            <p><strong>Residuals</strong> are the differences between actual and predicted values. They help assess model fit:</p>
+            <ul>
+                <li><strong>Random scatter:</strong> Good model fit</li>
+                <li><strong>Pattern (curve):</strong> Relationship isn't linear</li>
+                <li><strong>Fan shape:</strong> Variance changes with X</li>
+                <li><strong>Outliers:</strong> Points that don't fit the pattern</li>
+            </ul>
+        </div>
+        
+        <div class="info-section">
+            <h3>⚠️ CORRELATION ≠ CAUSATION</h3>
+            <p><strong>This is the most important concept!</strong> A high correlation does NOT mean X causes Y.</p>
+            <div class="formula-box">Association ≠ Causation</div>
+            <p><strong>Spurious correlations:</strong></p>
+            <ul>
+                <li>Ice cream sales ↔ Drowning deaths (confound: temperature)</li>
+                <li>Pirates ↔ Global warming (coincidence)</li>
+                <li>Storks ↔ Birth rate (confound: rural areas)</li>
+            </ul>
+            <p><strong>Three criteria for causation:</strong> Association, temporal precedence, no confounding.</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>🌍 Geography Examples</h3>
+            <ul>
+                <li><strong>Elevation vs Temperature:</strong> Negative correlation</li>
+                <li><strong>Distance from city center vs Housing price:</strong> Negative correlation</li>
+                <li><strong>Income vs Health outcomes:</strong> Positive correlation</li>
+            </ul>
+        </div>
+        
+        <div class="info-section">
+            <h3>💡 Best Practices</h3>
+            <ul>
+                <li>Always visualize with scatter plots</li>
+                <li>Check residuals for model fit</li>
+                <li>Report R², not just r</li>
+                <li>Never infer causation from correlation alone</li>
+                <li>Consider outliers' influence</li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>

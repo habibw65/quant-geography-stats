@@ -89,6 +89,137 @@
             border-color: var(--orange);
         }
         
+        /* Info Panel */
+        .info-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+        
+        .info-btn:hover {
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        
+        .info-panel {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100vh;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .info-panel.open {
+            right: 0;
+        }
+        
+        .info-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .info-panel-header h2 {
+            font-size: 1.2rem;
+            color: var(--orange);
+        }
+        
+        .close-panel {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .close-panel:hover {
+            color: var(--text);
+        }
+        
+        .info-section {
+            margin-bottom: 25px;
+        }
+        
+        .info-section h3 {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-section p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-section li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .info-section li::before {
+            content: "•";
+            color: var(--orange);
+            position: absolute;
+            left: 5px;
+        }
+        
+        .formula-box {
+            background: var(--bg);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--text);
+            margin: 10px 0;
+            border-left: 3px solid var(--orange);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
         .dashboard {
             display: grid;
             grid-template-columns: 260px 1fr 320px;
@@ -403,6 +534,7 @@
                 <a href="distribution.html">Distribution</a>
                 <a href="sampling.html" class="active">Sampling</a>
                 <a href="correlation.html">Correlation</a>
+                <button class="info-btn" onclick="toggleInfoPanel()">ℹ️ Learn More</button>
             </nav>
         </header>
         
@@ -808,6 +940,77 @@
                 }
             });
         }
+        
+        // Info Panel Toggle
+        function toggleInfoPanel() {
+            const panel = document.getElementById('infoPanel');
+            const overlay = document.getElementById('overlay');
+            panel.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+        
+        // Close panel when clicking overlay
+        document.getElementById('overlay').addEventListener('click', toggleInfoPanel);
     </script>
+    
+    <!-- Info Panel Overlay -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Info Panel -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-panel-header">
+            <h2>📚 Understanding Sampling & Confidence</h2>
+            <button class="close-panel" onclick="toggleInfoPanel()">&times;</button>
+        </div>
+        
+        <div class="info-section">
+            <h3>🎯 What is Bootstrap Sampling?</h3>
+            <p><strong>Bootstrap</strong> is a resampling technique where we repeatedly sample from our own data WITH replacement to estimate uncertainty.</p>
+            <div class="formula-box">Resample size = Original sample size</div>
+            <p><strong>Why it works:</strong> By resampling, we simulate "what if we collected data again?" This shows us how much our statistics might vary.</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>📊 Standard Error (SE)</h3>
+            <p>The <strong>standard error</strong> measures the precision of our sample mean as an estimate of the population mean.</p>
+            <div class="formula-box">SE = Standard Deviation / √n</div>
+            <p><strong>Key insight:</strong> To halve the SE, you need 4× the sample size!</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>📏 Confidence Intervals</h3>
+            <p>A <strong>95% confidence interval</strong> gives a range where we're 95% confident the true population parameter lies.</p>
+            <div class="formula-box">95% CI = Mean ± (1.96 × SE)</div>
+            <p><strong>Interpretation:</strong> "We're 95% confident the true mean is between [lower] and [upper]."</p>
+            <p><strong>⚠️ Not:</strong> "There's a 95% probability the mean is in this range." (The mean is fixed; our interval is what varies)</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>📈 Law of Large Numbers</h3>
+            <p>As sample size increases, the sample mean gets closer to the true population mean.</p>
+            <ul>
+                <li>Small samples: High uncertainty, variable estimates</li>
+                <li>Large samples: Low uncertainty, stable estimates</li>
+                <li>Diminishing returns: Each additional sample helps less</li>
+            </ul>
+        </div>
+        
+        <div class="info-section">
+            <h3>🌍 Geography Applications</h3>
+            <p><strong>Survey research:</strong> Report CIs to show uncertainty in estimates</p>
+            <p><strong>Field sampling:</strong> Determine how many samples needed for desired precision</p>
+            <p><strong>Polling:</strong> "Margin of error" is the same as confidence interval half-width</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>💡 Practical Tips</h3>
+            <ul>
+                <li>Always report confidence intervals, not just point estimates</li>
+                <li>Bigger samples = narrower CIs = more precision</li>
+                <li>Bootstrap works even when data isn't normal</li>
+                <li>Consider cost-benefit: Is 4× sample size worth 2× precision?</li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>
